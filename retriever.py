@@ -25,37 +25,41 @@ headers = {
     'sec-ch-ua-platform': os.getenv('SEC_CH_UA_PLATFORM')
 }
 
-# Send a GET request to the website with headers
-response = requests.get(url, headers=headers, allow_redirects=True)
+try:
+    # Send a GET request to the website with headers
+    response = requests.get(url, headers=headers, allow_redirects=True)
+    response.raise_for_status()  # Raise an HTTPError for bad responses
 
-# Check if the request was successful
-if response.status_code == 200:
-    # Parse the content with BeautifulSoup
-    soup = BeautifulSoup(response.content, 'html.parser')
+    # Check if the request was successful
+    if response.status_code == 200:
+        # Parse the content with BeautifulSoup
+        soup = BeautifulSoup(response.content, 'html.parser')
 
-    # Table containing the Grand Prix data
-    table = soup.find('table', {'id': 'ctl00_CPH_Main_GV_GrandPrix'}) 
+        # Table containing the Grand Prix data
+        table = soup.find('table', {'id': 'ctl00_CPH_Main_GV_GrandPrix'}) 
 
-    # Prepare to store the data
-    data = []
-    
-    # Extract table rows
-    rows = table.find_all('tr')
-    
-    # Loop through the rows (skip the header row)
-    for row in rows[1:]:
-        cols = row.find_all('td')
-        cols = [col.text.strip() for col in cols]
-        data.append(cols)  # Append the extracted data to the list
-    
-    # Convert the data to a DataFrame
-    df = pd.DataFrame(data, columns=['Grand Prix', 'Number', 'First', 'Last'])
+        # Prepare to store the data
+        data = []
+        
+        # Extract table rows
+        rows = table.find_all('tr')
+        
+        # Loop through the rows (skip the header row)
+        for row in rows[1:]:
+            cols = row.find_all('td')
+            cols = [col.text.strip() for col in cols]
+            data.append(cols)  # Append the extracted data to the list
+        
+        # Convert the data to a DataFrame
+        df = pd.DataFrame(data, columns=['Grand Prix', 'Number', 'First', 'Last'])
 
-    print(df)
+        print(df)
 
-    # Save the DataFrame to a CSV file
-    df.to_csv('grand_prix_data.csv', index=False)
+        # Save the DataFrame to a CSV file
+        df.to_csv('grand_prix_data.csv', index=False)
 
-    print("Data saved to grand_prix_data.csv")
-else:
-    print(f"Failed to retrieve data: {response.status_code}")
+        print("Data saved to grand_prix_data.csv")
+    else:
+        print(f"Failed to retrieve data: {response.status_code}")
+except requests.exceptions.RequestException as e:
+    print(f"An error occurred: {e}")
