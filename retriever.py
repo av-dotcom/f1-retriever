@@ -34,7 +34,7 @@ if response.status_code == 200:
     soup = BeautifulSoup(response.content, 'html.parser')
 
     # Table containing the Grand Prix data
-    table = soup.find('table', {'class': 'sortable'}) 
+    table = soup.find('table', {'id': 'ctl00_CPH_Main_GV_GrandPrix'}) 
 
     # Prepare to store the data
     data = []
@@ -46,7 +46,7 @@ if response.status_code == 200:
     for row in rows[1:]:
         cols = row.find_all('td')
         cols = [col.text.strip() for col in cols]
-        data.append(cols)
+        data.append(cols)  # Append the extracted data to the list
     
     # Convert the data to a DataFrame
     df = pd.DataFrame(data, columns=['Grand Prix', 'Number', 'First', 'Last'])
@@ -54,7 +54,7 @@ if response.status_code == 200:
     print(df)
 
     # Save the DataFrame to a CSV file
-    # df.to_csv('grand_prix_data.csv', index=False)
+    df.to_csv('grand_prix_data.csv', index=False)
 
     print("Data saved to grand_prix_data.csv")
 else:
